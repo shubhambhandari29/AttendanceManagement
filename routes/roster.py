@@ -1,5 +1,6 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, Response, request, jsonify
 from pymongo import MongoClient
+from bson import json_util
 from utils.decorators import manager_required
 
 roster_bp = Blueprint('roster', __name__)
@@ -33,7 +34,7 @@ def view_roster():
     roster_collection = db['roster']
 
     roster = list(roster_collection.find())
-    return jsonify(roster), 200
+    return Response(json_util.dumps(roster), mimetype='application/json')
 
 @roster_bp.route('/edit/<username>', methods=['PUT'])
 @manager_required
