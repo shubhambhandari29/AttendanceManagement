@@ -1,9 +1,9 @@
 from datetime import datetime
-from flask import Blueprint, request, jsonify, current_app
+from flask import Blueprint, Response, request, jsonify, current_app
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from pymongo import MongoClient
-from utils.decorators import staff_required
-
+from utils.decorators import staff_required, manager_required
+from bson import json_util
 attendance_bp = Blueprint('attendance', __name__)
 
 @attendance_bp.route('/mark', methods=['POST'])
@@ -38,3 +38,15 @@ def mark_attendance():
         'marked': True
     })
     return jsonify({'msg': 'Attendance marked successfully'}), 201
+
+
+@attendance_bp.route('/summary', methods=['GET'])
+@manager_required
+def attendance_summary():
+
+    client = MongoClient(current_app.config['MONGO_URI'])
+    db = client['attendance_db']
+    attendance_collection = db['attendance']
+
+    summary = list(attendance_collection.find())
+    return Response(json_util.dumps(summary), mimetype='application/json')
