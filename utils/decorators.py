@@ -22,7 +22,7 @@ def staff_required(fn):
     def wrapper(*args, **kwargs):
         verify_jwt_in_request()
         claims = get_jwt()
-        if claims['sub']['role'] not in ['staff', 'manager']:
+        if claims['sub']['role'] not in ['staff']:
             return jsonify({'msg': 'Staff only!'}), 403
         return fn(*args, **kwargs)
     return wrapper
